@@ -1,6 +1,29 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for
+import os
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 app = Flask(__name__)
+
+DB_FILE_PATH = os.path.join(
+    os.path.dirname(__file__),
+    'notes.sqlite'
+)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_FILE_PATH}"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+class Note(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.String(200), nullable=False)
+    create_note = db.Column(db.DateTime, default=datetime.utonow)
+
+    def __repr__(self):
+        return f"<Note {self.id}: {self.title}>"
+
 
 @app.route('/')
 def hello():
